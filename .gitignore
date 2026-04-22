@@ -18,11 +18,20 @@ node_modules/
 dist/
 build/
 
-artifacts/
-logs/
-data/raw/
-data/processed/
-data/interim/
+artifacts/*
+!artifacts/.gitkeep
+
+logs/*
+!logs/.gitkeep
+
+data/raw/*
+!data/raw/.gitkeep
+
+data/processed/*
+!data/processed/.gitkeep
+
+data/interim/*
+!data/interim/.gitkeep
 
 .DS_Store
 Thumbs.db
