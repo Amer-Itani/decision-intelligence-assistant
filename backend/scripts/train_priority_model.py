@@ -79,12 +79,14 @@ def evaluate_models(
     best_payload: dict[str, object] = {}
 
     for feature_name, features in feature_sets.items():
+        class_counts = pd.Series(encoded_labels).value_counts()
+        stratify_labels = encoded_labels if class_counts.min() >= 2 else None
         x_train, x_test, y_train, y_test = train_test_split(
             features,
             encoded_labels,
             test_size=0.2,
             random_state=42,
-            stratify=encoded_labels,
+            stratify=stratify_labels,
         )
         for model_name, model in candidates.items():
             start_time = time.perf_counter()

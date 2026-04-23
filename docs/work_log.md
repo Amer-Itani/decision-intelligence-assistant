@@ -191,3 +191,25 @@ done, which tools were used, what failed, and how each issue was handled.
   prediction because the named artifact volume starts empty.
 - Fix: updated `backend/Dockerfile` so container startup trains/exports model
   artifacts from the mounted dataset before launching Uvicorn.
+
+### 15. Notebook Output Execution
+
+- Issue reported: notebook code cells did not show saved outputs.
+- Investigation: only the first two code cells had execution counts and outputs;
+  the remaining edited cells had not been executed after implementation.
+- Action: added notebook execution dev dependencies with `uv`:
+  `nbformat`, `nbclient`, and `ipykernel`.
+- Action: registered the backend uv environment as a Jupyter kernel named
+  `decision-intelligence-backend`.
+- Bug encountered: registering/executing the kernel first failed with Windows
+  permission errors while writing Jupyter runtime/kernel files.
+- Fix: reran with approved filesystem access and set `JUPYTER_RUNTIME_DIR`
+  inside the project during execution.
+- Bug encountered: notebook execution failed on the 100-row raw `sample.csv`
+  because one weak-label class had only one example, so sklearn could not use a
+  stratified split.
+- Fix: updated the notebook and training script to use stratified splitting only
+  when every class has at least two examples; otherwise they use a regular
+  reproducible split and print a warning.
+- Result: notebook execution completed successfully and every code cell now has
+  saved outputs.
