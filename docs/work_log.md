@@ -175,3 +175,19 @@ done, which tools were used, what failed, and how each issue was handled.
 - Result: no git remote is configured and `gh` is not installed.
 - Next step: create an empty GitHub repository in the browser, then add it as
   `origin` and push `main`.
+
+### 14. Docker Compose Success
+
+- User action: Docker Desktop was opened and the engine became available.
+- Action: ran `docker compose up --build -d`.
+- Result: backend and frontend images built successfully and both containers
+  started.
+- Verification:
+  - `GET http://localhost:8000/api/v1/health` returned `{\"status\":\"ok\"}`.
+  - `POST http://localhost:8000/api/v1/analyze` returned HTTP 200.
+  - Docker retrieval used `chroma-persistent-hashing-embeddings`, confirming the
+    vector store path works inside Docker.
+- Issue found: the backend container initially used `rule-fallback` for ML
+  prediction because the named artifact volume starts empty.
+- Fix: updated `backend/Dockerfile` so container startup trains/exports model
+  artifacts from the mounted dataset before launching Uvicorn.
