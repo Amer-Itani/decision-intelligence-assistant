@@ -1,0 +1,45 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    environment:
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-llama-3.1-8b-instant}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DATASET_PATH: /app/data/sample/customer_support_sample.csv
+      CHROMA_PERSIST_DIRECTORY: /app/artifacts/chroma
+      RETRIEVAL_INDEX_PATH: /app/artifacts/retrieval_index.joblib
+      MODEL_ARTIFACT_PATH: /app/artifacts/priority_model.joblib
+      VECTORIZER_ARTIFACT_PATH: /app/artifacts/vectorizer.joblib
+      LABEL_ENCODER_ARTIFACT_PATH: /app/artifacts/label_encoder.joblib
+      MODEL_METADATA_ARTIFACT_PATH: /app/artifacts/model_metadata.json
+      LOG_PATH: /app/logs/requests.jsonl
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data:ro
+      - backend-artifacts:/app/artifacts
+      - backend-logs:/app/logs
+    networks:
+      - decision-intelligence
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000
+      FRONTEND_PORT: 5173
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - decision-intelligence
+
+volumes:
+  backend-artifacts:
+  backend-logs:
+
+networks:
+  decision-intelligence:
+    driver: bridge
