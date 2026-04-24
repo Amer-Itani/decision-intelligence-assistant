@@ -444,6 +444,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "ipykernel" },
+    { name = "kagglehub" },
     { name = "nbclient" },
     { name = "nbformat" },
 ]
@@ -466,6 +467,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "ipykernel", specifier = ">=7.2.0" },
+    { name = "kagglehub", specifier = ">=1.0.0" },
     { name = "nbclient", specifier = ">=0.10.4" },
     { name = "nbformat", specifier = ">=5.10.4" },
 ]
@@ -963,6 +965,35 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/02/49/9d1284d0dc65e2c757b74c6687b6d319b02f822ad039e5c512df9194d9dd/jupyter_core-5.9.1.tar.gz", hash = "sha256:4d09aaff303b9566c3ce657f580bd089ff5c91f5f89cf7d8846c3cdf465b5508", size = 89814, upload-time = "2025-10-16T19:19:18.444Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e7/e7/80988e32bf6f73919a113473a604f5a8f09094de312b9d52b79c2df7612b/jupyter_core-5.9.1-py3-none-any.whl", hash = "sha256:ebf87fdc6073d142e114c72c9e29a9d7ca03fad818c5d300ce2adc1fb0743407", size = 29032, upload-time = "2025-10-16T19:19:16.783Z" },
+]
+
+[[package]]
+name = "kagglehub"
+version = "1.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "kagglesdk" },
+    { name = "packaging" },
+    { name = "pyyaml" },
+    { name = "requests" },
+    { name = "tqdm" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/98/b2/a542a926e47f0f6947d9fa7117b3a730edbf2a76fffc71e19b8755a58f33/kagglehub-1.0.0.tar.gz", hash = "sha256:21dc25d0279e2071f8b97cd9e1393d003ea5e054ea48f1e8139a39e4771e9a8d", size = 117315, upload-time = "2026-02-11T19:45:36.227Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/18/78/08cec00ea05fd2469f9395da0306bb368c4ed275693be8d31473eafaf90c/kagglehub-1.0.0-py3-none-any.whl", hash = "sha256:9397f0c6af04cdefa6fa8734c31b42863e8741aad5832c6f3af52f1ecf8fe509", size = 70632, upload-time = "2026-02-11T19:45:34.626Z" },
+]
+
+[[package]]
+name = "kagglesdk"
+version = "0.1.20"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "protobuf" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/37/46/f65c1df9529f8d4c0aa867dc176b0ba6a2785446adccff74df57d798e131/kagglesdk-0.1.20.tar.gz", hash = "sha256:202d1ff30ade1f1d6f5231927355f0d5564da365dc15c1e12090a1311d89b3f7", size = 158021, upload-time = "2026-04-22T23:15:11.733Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b3/97/755494fa924f1c1d1d73fbd4aeea0fa4567def902a6148dae23d9a37fb02/kagglesdk-0.1.20-py3-none-any.whl", hash = "sha256:be005560aa054f8ca75328179202c32558356c029905ce39c98242ba223815e1", size = 210247, upload-time = "2026-04-22T23:15:10.319Z" },
 ]
 
 [[package]]

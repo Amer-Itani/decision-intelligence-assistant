@@ -257,3 +257,29 @@ done, which tools were used, what failed, and how each issue was handled.
 - Security note: `docker compose config` expands values from `.env`, including
   secrets. Avoid sharing that output, and rotate any API key that appears in
   terminal logs or screenshots.
+
+### 19. Editor Warning Cleanup
+
+- Issue reported: VS Code showed diagnostics in `retrieval.py`, `llm.py`,
+  `train_priority_model.py`, `frontend/.dockerignore`, and the notebook.
+- Fixes:
+  - Added explicit casts in `retrieval.py` for dynamic Chroma and sparse-matrix
+    APIs so Pylance can understand `.query()` and `.toarray()`.
+  - Added a defensive client check in `llm.py` before using the Groq client's
+    `.chat` API.
+  - Added type annotations/casts in `train_priority_model.py` for candidate
+    models, encoded labels, and macro-F1 rounding.
+  - Replaced `frontend/.dockerignore`'s `.env.*` glob with explicit env-file
+    variants to quiet the Docker ignore warning.
+  - Added `kagglehub` to backend dev dependencies so the notebook kernel can
+    resolve the optional Kaggle download import.
+  - Replaced notebook `idxmax()` allocation calls with sorted index access to
+    avoid pandas typing warnings.
+- Issue found: saving the notebook in VS Code had reverted it to an older,
+  unexecuted state and removed the latest outputs/code changes.
+- Fix: restored the notebook from git, then applied only the small `idxmax()`
+  typing cleanup.
+- Verification:
+  - frontend `npm run build` passed.
+  - backend import smoke check passed with bytecode writing disabled.
+  - deploy-fast model export passed on the 10k sample.

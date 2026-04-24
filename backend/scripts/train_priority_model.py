@@ -7,6 +7,7 @@ import json
 import sys
 import time
 from pathlib import Path
+from typing import Any, cast
 
 import joblib
 import numpy as np
@@ -61,7 +62,9 @@ def evaluate_models(
 
     combined_matrix = hstack([text_matrix, engineered_matrix])
     feature_sets = {"tfidf_engineered": combined_matrix}
-    candidates = {"LinearSVC": LinearSVC(class_weight="balanced", max_iter=20000)}
+    candidates: dict[str, Any] = {
+        "LinearSVC": LinearSVC(class_weight="balanced", max_iter=20000)
+    }
     if not deploy_fast:
         feature_sets = {
             "tfidf_only": text_matrix,
@@ -101,7 +104,7 @@ def evaluate_models(
             prediction_latency_ms = (
                 (time.perf_counter() - start_time) / max(len(y_test), 1) * 1000
             )
-            macro_f1 = f1_score(y_test, predictions, average="macro")
+            macro_f1 = float(f1_score(y_test, predictions, average="macro"))
             payload = {
                 "feature_set": feature_name,
                 "model_name": model_name,
@@ -157,7 +160,10 @@ def main() -> None:
     dataset["priority_label"] = dataset["text"].apply(weak_label_priority)
 
     label_encoder = LabelEncoder()
-    encoded_labels = label_encoder.fit_transform(dataset["priority_label"])
+    encoded_labels = cast(
+        np.ndarray,
+        np.asarray(label_encoder.fit_transform(dataset["priority_label"]), dtype=int),
+    )
     vectorizer = TfidfVectorizer(
         max_features=20000,
         ngram_range=(1, 2),

@@ -6,7 +6,7 @@ import csv
 import logging
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import joblib
 import numpy as np
@@ -143,7 +143,8 @@ class RetrievalService:
 
     def _search_chroma(self, query: str, top_k: int) -> list[RetrievedTicket]:
         query_embedding = self._embed([query])[0]
-        raw_results = self._chroma_collection.query(
+        collection = cast(Any, self._chroma_collection)
+        raw_results = collection.query(
             query_embeddings=[query_embedding],
             n_results=top_k,
             include=["documents", "metadatas", "distances"],
@@ -165,11 +166,11 @@ class RetrievalService:
             results.append(
                 RetrievedTicket(
                     ticket_id=str(ticket_id),
-                    brand=str(metadata.get("brand", "unknown")),
+                    brand=str((metadata or {}).get("brand", "unknown")),
                     text=str(document),
                     score=round(similarity, 4),
                     metadata={
-                        "author_id": metadata.get("author_id", ""),
+                        "author_id": (metadata or {}).get("author_id", ""),
                         "source": "chroma-persistent-hashing-embeddings",
                     },
                 )
@@ -177,7 +178,7 @@ class RetrievalService:
         return results
 
     def _embed(self, texts: list[str]) -> list[list[float]]:
-        matrix = self._embedding_vectorizer.transform(texts)
+        matrix = cast(Any, self._embedding_vectorizer.transform(texts))
         return matrix.toarray().astype(float).tolist()
 
     def _load_or_build_tfidf_index(self) -> None:

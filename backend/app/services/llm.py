@@ -111,8 +111,12 @@ class LlmService:
         )
 
     def _chat_text(self, prompt: str) -> tuple[str, float, float]:
+        if self._client is None:
+            raise RuntimeError("LLM client is not configured.")
+
         start_time = time.perf_counter()
-        response = self._client.chat.completions.create(
+        client = self._client
+        response = client.chat.completions.create(
             model=self._settings.groq_model,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
