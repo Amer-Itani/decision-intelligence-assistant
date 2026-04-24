@@ -86,6 +86,9 @@ def evaluate_models(
     best_model = None
     best_score = -1.0
     best_payload: dict[str, object] = {}
+    label_classes = np.asarray(cast(Any, label_encoder.classes_))
+    label_names = [str(label) for label in label_classes.tolist()]
+    label_indexes = list(range(len(label_names)))
 
     for feature_name, features in feature_sets.items():
         class_counts = pd.Series(encoded_labels).value_counts()
@@ -114,10 +117,10 @@ def evaluate_models(
                 "classification_report": classification_report(
                     y_test,
                     predictions,
-                    labels=list(range(len(label_encoder.classes_))),
-                    target_names=label_encoder.classes_,
+                    labels=label_indexes,
+                    target_names=label_names,
                     output_dict=True,
-                    zero_division=0,
+                    zero_division="0",
                 ),
             }
             if macro_f1 > best_score and feature_name == "tfidf_engineered":
@@ -170,8 +173,9 @@ def main() -> None:
         min_df=1,
         stop_words="english",
     )
-    text_matrix = vectorizer.fit_transform(dataset["text"])
-    engineered_matrix = build_engineered_matrix(dataset["text"])
+    ticket_texts = cast(pd.Series, dataset["text"])
+    text_matrix = vectorizer.fit_transform(ticket_texts)
+    engineered_matrix = build_engineered_matrix(ticket_texts)
     model, metrics = evaluate_models(
         text_matrix=text_matrix,
         engineered_matrix=engineered_matrix,

@@ -126,9 +126,10 @@ class RetrievalService:
                 for ticket in self._tickets
             ]
             try:
+                collection_for_upsert = cast(Any, collection)
                 for start_index in range(0, len(ids), 1000):
                     end_index = start_index + 1000
-                    collection.upsert(
+                    collection_for_upsert.upsert(
                         ids=ids[start_index:end_index],
                         documents=documents[start_index:end_index],
                         embeddings=embeddings[start_index:end_index],
