@@ -54,25 +54,31 @@ def evaluate_models(
     engineered_matrix: np.ndarray,
     encoded_labels: np.ndarray,
     label_encoder: LabelEncoder,
+    include_random_forest: bool,
+    deploy_fast: bool,
 ) -> tuple[object, dict[str, object]]:
     """Compare candidate models and return the best one with metrics."""
 
     combined_matrix = hstack([text_matrix, engineered_matrix])
-    feature_sets = {
-        "tfidf_only": text_matrix,
-        "engineered_only": engineered_matrix,
-        "tfidf_engineered": combined_matrix,
-    }
-    candidates = {
-        "LogisticRegression": LogisticRegression(max_iter=3000, class_weight="balanced"),
-        "LinearSVC": LinearSVC(class_weight="balanced", max_iter=20000),
-        "RandomForestClassifier": RandomForestClassifier(
-            n_estimators=200,
+    feature_sets = {"tfidf_engineered": combined_matrix}
+    candidates = {"LinearSVC": LinearSVC(class_weight="balanced", max_iter=20000)}
+    if not deploy_fast:
+        feature_sets = {
+            "tfidf_only": text_matrix,
+            "engineered_only": engineered_matrix,
+            "tfidf_engineered": combined_matrix,
+        }
+        candidates["LogisticRegression"] = LogisticRegression(
+            max_iter=3000,
+            class_weight="balanced",
+        )
+    if include_random_forest:
+        candidates["RandomForestClassifier"] = RandomForestClassifier(
+            n_estimators=50,
             random_state=42,
             class_weight="balanced",
             n_jobs=1,
-        ),
-    }
+        )
 
     best_model = None
     best_score = -1.0
@@ -135,6 +141,16 @@ def main() -> None:
         type=Path,
         default=PROJECT_ROOT / "artifacts",
     )
+    parser.add_argument(
+        "--include-random-forest",
+        action="store_true",
+        help="Include RandomForestClassifier in the export script comparison.",
+    )
+    parser.add_argument(
+        "--deploy-fast",
+        action="store_true",
+        help="Train only the deployable combined-feature LinearSVC artifact.",
+    )
     args = parser.parse_args()
 
     dataset = load_dataset(args.dataset)
@@ -155,6 +171,8 @@ def main() -> None:
         engineered_matrix=engineered_matrix,
         encoded_labels=encoded_labels,
         label_encoder=label_encoder,
+        include_random_forest=args.include_random_forest,
+        deploy_fast=args.deploy_fast,
     )
 
     args.artifacts_dir.mkdir(parents=True, exist_ok=True)

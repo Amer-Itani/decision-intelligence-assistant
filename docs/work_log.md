@@ -213,3 +213,47 @@ done, which tools were used, what failed, and how each issue was handled.
   reproducible split and print a warning.
 - Result: notebook execution completed successfully and every code cell now has
   saved outputs.
+
+### 16. Full Dataset 10k Sample Run
+
+- User action: downloaded and unzipped the full Kaggle dataset, then placed
+  `twcs.csv` in `data/raw`.
+- Action: reran the notebook with `twcs.csv` present.
+- Result: `data/sample/customer_support_sample.csv` was regenerated as a
+  10,000-row sample from the full dataset.
+- Issue found: the original brand inference produced 10,000 unique `brand_hint`
+  values, which meant it was often selecting numeric customer IDs instead of
+  support brand handles.
+- Fix: updated notebook brand inference to inspect linked tweets and only treat
+  non-numeric author IDs as likely brands.
+- Result after fix: the 10k sample has 109 inferred brand values. Some rows
+  remain `unknown` where the conversation links do not expose a brand.
+
+### 17. Editor and TypeScript Warnings
+
+- Issue found: frontend `tsconfig.json` used `moduleResolution: "Node"`, which
+  VS Code warned is deprecated for future TypeScript versions.
+- Fix: changed it to `moduleResolution: "Bundler"`, which matches Vite.
+- Issue found: VS Code/Pylance showed missing-import warnings for backend
+  dependencies such as `groq` and `chromadb`.
+- Fix: added `pyrightconfig.json` pointing analysis at `backend/.venv` and
+  adding `backend` to `extraPaths`.
+
+### 18. Docker 10k Runtime Verification
+
+- Issue found: backend startup became too slow when it attempted to run the full
+  training-script model comparison on the 10k sample.
+- Fix: added `--deploy-fast` mode to `backend/scripts/train_priority_model.py`.
+  Docker startup now trains the deployable combined-feature `LinearSVC` artifact
+  on the 10k sample, while the notebook remains the source for the broader model
+  comparison.
+- Verification:
+  - frontend `npm run build` passed after the TypeScript config update.
+  - Docker backend artifact metadata reports `dataset_rows = 10000`.
+  - Docker backend artifact model reports `LinearSVC`.
+  - `/api/v1/analyze` returned Chroma source metadata:
+    `chroma-persistent-hashing-embeddings`.
+  - A second post-index analyze request completed in about 1.5 seconds.
+- Security note: `docker compose config` expands values from `.env`, including
+  secrets. Avoid sharing that output, and rotate any API key that appears in
+  terminal logs or screenshots.
